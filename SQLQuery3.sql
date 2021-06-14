@@ -19,10 +19,17 @@ BEGIN;
 
 SET NOCOUNT ON;
 
-INSERT INTO dbo.Contacts (FirstName, LastName, DateOfBirth, AllowContactByPhone) 
-	VALUES (@FirstName, @LastName, @DateOfBirth, @AllowContactByPhone);
+IF NOT EXISTS (SELECT 1 FROM dbo.Contacts
+				WHERE FirstName = @FirstName AND @LastName = LastName
+					AND DateOfBirth = @DateOfBirth)
+BEGIN;
 
-SELECT @ContactId = SCOPE_IDENTITY();
+	INSERT INTO dbo.Contacts (FirstName, LastName, DateOfBirth, AllowContactByPhone) 
+		VALUES (@FirstName, @LastName, @DateOfBirth, @AllowContactByPhone);
+
+	SELECT @ContactId = SCOPE_IDENTITY();
+END;
+
 EXEC dbo.SelectContact @ContactId = @ContactId;
 
 SET NOCOUNT OFF;
